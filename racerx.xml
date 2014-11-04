@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    file                 : racerx.xml
+    created              : Tue Oct 28 10:41:07 EDT 2014
+    copyright            : (C) 2002 pauldrews
+-->
+
+<!DOCTYPE params SYSTEM "../../libs/tgf/params.dtd">
+<params name="racerx" type="robotdef">
+  <section name="Robots">
+    <section name="index">
+      <section name="1">
+	<attstr name="name" val="racerx"></attstr>
+	<attstr name="desc" val="6601 project car"></attstr>
+	<attstr name="team" val=""></attstr>
+	<attstr name="author" val="pauldrews"></attstr>
+	<attstr name="car name" val="car3-trb1"></attstr>
+	<attnum name="race number" val="0"></attnum>
+	<attnum name="red" val="1.0"></attnum>
+	<attnum name="green" val="1.0"></attnum>
+	<attnum name="blue" val="1.0"></attnum>
+      </section>
+    </section>
+  </section>
+</params>

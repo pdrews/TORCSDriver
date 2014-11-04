@@ -1,0 +1,13 @@
+;
+;   file                 : racerx.def
+;   created              : Tue Oct 28 10:41:07 EDT 2014
+;   copyright            : (C) 2002 pauldrews
+;
+
+LIBRARY	racerx
+
+SECTIONS .data READ WRITE
+
+EXPORTS
+	racerx
+
