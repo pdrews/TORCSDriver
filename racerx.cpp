@@ -22,6 +22,7 @@
 #include <raceman.h> 
 #include <robottools.h>
 #include <robot.h>
+#include "Spline.h"
 
 #include "wrapper.hpp"
 
@@ -103,21 +104,36 @@ drive(int index, tCarElt* car, tSituation *s)
 	if (counter == 0){
 	//	wrap.print();
 	}
+    memset(&car->ctrl, 0, sizeof(tCarCtrl));
 
-	memset(&car->ctrl, 0, sizeof(tCarCtrl));
+    float angle;
+    const float SC = 1.0;
 
-	float angle;
-	const float SC = 1.0;
+    angle = RtTrackSideTgAngleL(&(car->_trkPos)) - car->_yaw;
+    NORM_PI_PI(angle); // put the angle back in the range from -PI to PI
+    angle -= SC*car->_trkPos.toMiddle/car->_trkPos.seg->width;
 
-	angle = RtTrackSideTgAngleL(&(car->_trkPos)) - car->_yaw;
-	NORM_PI_PI(angle); // put the angle back in the range from -PI to PI
-	angle -= SC*car->_trkPos.toMiddle/car->_trkPos.seg->width;
+    // set up the values to return
+    car->ctrl.steer = angle / car->_steerLock;
+    car->ctrl.gear = 1; // first gear
+    car->ctrl.accelCmd = 0.3; // 30% accelerator pedal
+    car->ctrl.brakeCmd = 0.0; // no brakes
 
-	// set up the values to return
-	car->ctrl.steer = angle / car->_steerLock;
-	car->ctrl.gear = 1; // first gear
-	car->ctrl.accelCmd = 0.3; // 30% accelerator pedal
-	car->ctrl.brakeCmd = 0.0; // no brakes
+    std::vector<double> X(5); 
+    std::vector<double> Y(5); 
+    X[0] = 1.0;
+    X[1] = 2.0;
+    X[2] = 3.0;
+    X[3] = 4.0;
+    X[4] = 5.0;
+    Y[0] = 15.0;
+    Y[1] = 27.0;
+    Y[2] = 0.1;
+    Y[3] = 10.0;
+    Y[4] = 21.0;
+    Spline alexSpline(X,Y);
+    std::cout << "SPLINE VALUE @ 5.5: ";
+    std::cout << alexSpline.computeSplineValue(5.5) << std::endl;
 }
 
 /* End of the current race */

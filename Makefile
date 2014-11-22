@@ -9,7 +9,7 @@
 ROBOT       = racerx
 MODULE      = ${ROBOT}.so
 MODULEDIR   = drivers/${ROBOT}
-SOURCES     = ${ROBOT}.cpp wrapper.cpp
+SOURCES     = ${ROBOT}.cpp wrapper.cpp Spline.cpp 
 
 SHIPDIR     = drivers/${ROBOT}
 SHIP        = ${ROBOT}.xml 
