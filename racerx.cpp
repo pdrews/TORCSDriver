@@ -23,6 +23,8 @@
 #include <robottools.h>
 #include <robot.h>
 
+#include "wrapper.hpp"
+
 static tTrack	*curTrack;
 
 static void initTrack(int index, tTrack* track, void *carHandle, void **carParmHandle, tSituation *s); 
@@ -33,6 +35,8 @@ static void shutdown(int index);
 static int  InitFuncPt(int index, void *pt); 
 static const char* botname = "racerx";
 static const char* botdesc = "6601 project car";
+
+static int counter = 0;
 
 /* 
  * Module entry point  
@@ -84,26 +88,36 @@ initTrack(int index, tTrack* track, void *carHandle, void **carParmHandle, tSitu
 static void  
 newrace(int index, tCarElt* car, tSituation *s) 
 { 
+	Wrapper& wrap = Wrapper::getInstance();
+	wrap.updateState(car, s);
+	wrap.getTrack();
 }
  
 /* Drive during race. */
 static void
 drive(int index, tCarElt* car, tSituation *s)
 {
-    memset(&car->ctrl, 0, sizeof(tCarCtrl));
+	Wrapper& wrap = Wrapper::getInstance();
+	wrap.updateState(car, s);
+	counter = (counter + 1)%10;
+	if (counter == 0){
+	//	wrap.print();
+	}
 
-    float angle;
-    const float SC = 1.0;
+	memset(&car->ctrl, 0, sizeof(tCarCtrl));
 
-    angle = RtTrackSideTgAngleL(&(car->_trkPos)) - car->_yaw;
-    NORM_PI_PI(angle); // put the angle back in the range from -PI to PI
-    angle -= SC*car->_trkPos.toMiddle/car->_trkPos.seg->width;
+	float angle;
+	const float SC = 1.0;
 
-    // set up the values to return
-    car->ctrl.steer = angle / car->_steerLock;
-    car->ctrl.gear = 1; // first gear
-    car->ctrl.accelCmd = 0.3; // 30% accelerator pedal
-    car->ctrl.brakeCmd = 0.0; // no brakes
+	angle = RtTrackSideTgAngleL(&(car->_trkPos)) - car->_yaw;
+	NORM_PI_PI(angle); // put the angle back in the range from -PI to PI
+	angle -= SC*car->_trkPos.toMiddle/car->_trkPos.seg->width;
+
+	// set up the values to return
+	car->ctrl.steer = angle / car->_steerLock;
+	car->ctrl.gear = 1; // first gear
+	car->ctrl.accelCmd = 0.3; // 30% accelerator pedal
+	car->ctrl.brakeCmd = 0.0; // no brakes
 }
 
 /* End of the current race */
