@@ -4,11 +4,16 @@
 #include <map>
 #include <math.h>
 #include <vector>  
+#include "DataStructures.h"
+#include "wrapper.hpp"
+#include "Spline.h"
+using namespace std;
+
 class Arbiter
 {
 public:
 	Arbiter(int nb_segments, int nb_intervals_per_segment):m_nb_segments(nb_segments),m_nb_intervals_per_segment(nb_intervals_per_segment){};
-	void  Arbiter::Arbiter(int nb_segments, int nb_intervals_per_segment, 
+	Arbiter(int nb_segments, int nb_intervals_per_segment, 
 		Controller* controller, Policy* policy, Wrapper* wrapper);
 	void drive();
 	void setController(Controller* controller);
@@ -25,6 +30,6 @@ private:
 	int m_nb_intervals_per_segment;
 	map<float, WorldState> m_positions;
 	map<float,vector<float> > m_positions_x;
-	void collectIntervalPositions();
-}
+	void collectIntervalPositions(float, float);
+};
 #endif
