@@ -7,5 +7,9 @@ struct CarControls
   float gas;
   float gear;
 };
-
-//Alex comment
+struct WorldState
+{
+	float curvature;
+	float direction;
+	float position_x;
+};
