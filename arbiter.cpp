@@ -1,6 +1,6 @@
 #include "arbiter.h"
 
-Arbiter::Arbiter(int nb_segments, int nb_intervals_per_segment, Driver* controller, ZeroPolicy* policy, Wrapper* wrapper)
+Arbiter::Arbiter(int nb_segments, int nb_intervals_per_segment, Driver* controller, ZeroPolicy* policy, wrapper* wrapper)
 {
 	Arbiter(nb_segments, nb_intervals_per_segment);
 	this->setWrapper(wrapper);
@@ -36,7 +36,7 @@ void Arbiter::drive()
 }
 void Arbiter::setController(Driver* controller) {m_controller = controller;}
 void Arbiter::setPolicy(ZeroPolicy* policy) {m_policy = policy;}
-void Arbiter::setWrapper(Wrapper* w)
+void Arbiter::setWrapper(wrapper* w)
 {
 	m_wrapper = w;
 	m_track_length = m_wrapper->m_trackLength;
