@@ -6,6 +6,7 @@
  *
  * ---------------------------------------------------------------------
  * Copyright (C) 2011, 2014 Tino Kluge (ttk448 at gmail.com)
+ * Modified by Alex Hagiopol for the CS 6601 Group Project
  *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
@@ -80,20 +81,14 @@ private:
    std::vector<double> m_a,m_b,m_c,m_d;
 public:
    void set_points(const std::vector<double>& x,
-                   const std::vector<double>& y, bool cubic_spline=true);
-   double operator() (double x) const;
+                   const std::vector<double>& y, double initCurvature, bool cubic_spline=true);
+   std::vector<double> operator() (double x) const; 
+   //std::vector<double> getCoefficients(double x) const;
 };
-
-
-
-
-
 
 // ---------------------------------------------------------------------
 // implementation part, which should be separated into a cpp file
 // ---------------------------------------------------------------------
-
-
 
 
 // band_matrix implementation
@@ -132,7 +127,7 @@ double & band_matrix::operator () (int i, int j) {
    assert( (-num_lower()<=k) && (k<=num_upper()) );
    // k=0 -> diogonal, k<0 lower left part, k>0 upper right part
    if(k>=0)   return m_upper[k][i];
-   else	    return m_lower[-k][i];
+   else      return m_lower[-k][i];
 }
 double band_matrix::operator () (int i, int j) const {
    int k=j-i;       // what band is the entry
@@ -140,7 +135,7 @@ double band_matrix::operator () (int i, int j) const {
    assert( (-num_lower()<=k) && (k<=num_upper()) );
    // k=0 -> diogonal, k<0 lower left part, k>0 upper right part
    if(k>=0)   return m_upper[k][i];
-   else	    return m_lower[-k][i];
+   else      return m_lower[-k][i];
 }
 // second diag (used in LU decomposition), saved in m_lower
 double band_matrix::saved_diag(int i) const {
@@ -227,15 +222,12 @@ std::vector<double> band_matrix::lu_solve(const std::vector<double>& b,
    return x;
 }
 
-
-
-
-
 // spline implementation
 // -----------------------
 
+//Alex changes: added initial curvature variable
 void spline::set_points(const std::vector<double>& x,
-                          const std::vector<double>& y, bool cubic_spline) {
+                          const std::vector<double>& y, double initCurvature, bool cubic_spline) {
    assert(x.size()==y.size());
    m_x=x;
    m_y=y;
@@ -259,7 +251,7 @@ void spline::set_points(const std::vector<double>& x,
       // boundary conditions, zero curvature b[0]=b[n-1]=0
       A(0,0)=2.0;
       A(0,1)=0.0;
-      rhs[0]=0.0;
+      rhs[0]=initCurvature;   //Alex comment: this is initial curvature; original value is zero.
       A(n-1,n-1)=2.0;
       A(n-1,n-2)=0.0;
       rhs[n-1]=0.0;
@@ -294,7 +286,7 @@ void spline::set_points(const std::vector<double>& x,
    m_c[n-1]=3.0*m_a[n-2]*h*h+2.0*m_b[n-2]*h+m_c[n-2];   // = f'_{n-2}(x_{n-1})
 }
 
-double spline::operator() (double x) const {
+std::vector<double> spline::operator() (double x) const {
    size_t n=m_x.size();
    // find the closest point m_x[idx] < x, idx=0 even if x<m_x[0]
    std::vector<double>::const_iterator it;
@@ -303,19 +295,26 @@ double spline::operator() (double x) const {
 
    double h=x-m_x[idx];
    double interpol;
+   double curvature;
+   std::vector<double> retVals(2);
    if(x<m_x[0]) {
       // extrapolation to the left
       interpol=((m_b[0])*h + m_c[0])*h + m_y[0];
+      //return 6*A*evalPoint+2*B;
+      curvature = 6*m_a[0]*h+2*m_b[0];
    } else if(x>m_x[n-1]) {
       // extrapolation to the right
       interpol=((m_b[n-1])*h + m_c[n-1])*h + m_y[n-1];
+      curvature = 6*m_a[n-1]*h+2*m_b[n-1];
    } else {
       // interpolation
       interpol=((m_a[idx]*h + m_b[idx])*h + m_c[idx])*h + m_y[idx];
+      curvature = 6*m_a[idx]*h+2*m_b[idx];
    }
-   return interpol;
+   retVals[0] = interpol;
+   retVals[1] = curvature;
+   return retVals;
 }
-
 
 } // namespace tk
 

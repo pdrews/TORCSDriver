@@ -119,21 +119,34 @@ drive(int index, tCarElt* car, tSituation *s)
     car->ctrl.accelCmd = 0.3; // 30% accelerator pedal
     car->ctrl.brakeCmd = 0.0; // no brakes
 
+   //Testing spline function
     std::vector<double> X(5); 
     std::vector<double> Y(5); 
-    X[0] = 1.0;
-    X[1] = 2.0;
-    X[2] = 3.0;
-    X[3] = 4.0;
-    X[4] = 5.0;
-    Y[0] = 15.0;
-    Y[1] = 27.0;
-    Y[2] = 0.1;
-    Y[3] = 10.0;
-    Y[4] = 21.0;
-    Spline alexSpline(X,Y);
-    std::cout << "SPLINE VALUE @ 5.5: ";
-    std::cout << alexSpline.computeSplineValue(5.5) << std::endl;
+    X[0] = 0.1;
+    X[1] = 0.4;
+    X[2] = 1.2;
+    X[3] = 1.8;
+    X[4] = 2.0;
+    Y[0] = 0.1;
+    Y[1] = 0.7;
+    Y[2] = 0.6;
+    Y[3] = 1.1;
+    Y[4] = 0.9;
+
+    double evaluationPoint = 0.7;
+    double initCurv = 0.0;
+    Spline alexSpline(X,Y,initCurv);
+    std::vector<double> values;
+    values = alexSpline.getValues(evaluationPoint);
+
+    std::cout << "Initial curvature:";
+    std::cout << initCurv << std::endl;
+    std::cout << "Evaluation point:";
+    std::cout << evaluationPoint << std::endl;
+    std::cout << "Spline value:";    
+    std::cout << values[0] << std::endl;
+    std::cout << "Curvature value:";    
+    std::cout << values[1] << std::endl;
 }
 
 /* End of the current race */
