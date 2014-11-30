@@ -60,7 +60,7 @@ const float Driver::CAR_BRAKE_CONSTANT = 1.0f;
 
 
 // Static variables.
-//Cardata *Driver::cardata = NULL;
+Cardata *Driver::cardata = NULL;
 double Driver::currentsimtime;
 
 
