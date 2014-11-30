@@ -22,7 +22,6 @@
 #include <raceman.h> 
 #include <robottools.h>
 #include <robot.h>
-#include "Spline.h"
 
 #include "wrapper.hpp"
 
@@ -104,49 +103,21 @@ drive(int index, tCarElt* car, tSituation *s)
 	if (counter == 0){
 	//	wrap.print();
 	}
-    memset(&car->ctrl, 0, sizeof(tCarCtrl));
 
-    float angle;
-    const float SC = 1.0;
+	memset(&car->ctrl, 0, sizeof(tCarCtrl));
 
-    angle = RtTrackSideTgAngleL(&(car->_trkPos)) - car->_yaw;
-    NORM_PI_PI(angle); // put the angle back in the range from -PI to PI
-    angle -= SC*car->_trkPos.toMiddle/car->_trkPos.seg->width;
+	float angle;
+	const float SC = 1.0;
 
-    // set up the values to return
-    car->ctrl.steer = angle / car->_steerLock;
-    car->ctrl.gear = 1; // first gear
-    car->ctrl.accelCmd = 0.3; // 30% accelerator pedal
-    car->ctrl.brakeCmd = 0.0; // no brakes
+	angle = RtTrackSideTgAngleL(&(car->_trkPos)) - car->_yaw;
+	NORM_PI_PI(angle); // put the angle back in the range from -PI to PI
+	angle -= SC*car->_trkPos.toMiddle/car->_trkPos.seg->width;
 
-   //Testing spline function
-    std::vector<double> X(5); 
-    std::vector<double> Y(5); 
-    X[0] = 0.1;
-    X[1] = 0.4;
-    X[2] = 1.2;
-    X[3] = 1.8;
-    X[4] = 2.0;
-    Y[0] = 0.1;
-    Y[1] = 0.7;
-    Y[2] = 0.6;
-    Y[3] = 1.1;
-    Y[4] = 0.9;
-
-    double evaluationPoint = 0.7;
-    double initCurv = 0.0;
-    Spline alexSpline(X,Y,initCurv);
-    std::vector<double> values;
-    values = alexSpline.getValues(evaluationPoint);
-
-    std::cout << "Initial curvature:";
-    std::cout << initCurv << std::endl;
-    std::cout << "Evaluation point:";
-    std::cout << evaluationPoint << std::endl;
-    std::cout << "Spline value:";    
-    std::cout << values[0] << std::endl;
-    std::cout << "Curvature value:";    
-    std::cout << values[1] << std::endl;
+	// set up the values to return
+	car->ctrl.steer = angle / car->_steerLock;
+	car->ctrl.gear = 1; // first gear
+	car->ctrl.accelCmd = 0.3; // 30% accelerator pedal
+	car->ctrl.brakeCmd = 0.0; // no brakes
 }
 
 /* End of the current race */

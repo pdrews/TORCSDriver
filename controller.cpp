@@ -60,7 +60,7 @@ const float Driver::CAR_BRAKE_CONSTANT = 1.0f;
 
 
 // Static variables.
-//Cardata *Driver::cardata = NULL;
+Cardata *Driver::cardata = NULL;
 double Driver::currentsimtime;
 
 
@@ -199,7 +199,7 @@ void Driver::drive(tSituation *s, float splinePos)
     car->_gearCmd = getGear();
     car->_brakeCmd = filterABS(filterBrakeSpeed(getBrake(splinePos)));
     if (car->_brakeCmd == 0.0f) {
-      car->_accelCmd = filterTCL(filterTrk(filterOverlap(getAccel(splinePos))));
+      car->_accelCmd = filterTCL(getAccel(splinePos));
     } else {
       car->_accelCmd = 0.0f;
       }
