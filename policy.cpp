@@ -9,13 +9,22 @@ using namespace zmq;
 
 Policy::~Policy() {}
 
-ZeroPolicy::ZeroPolicy(int actionDim) : m_actionDim(actionDim) {}
+ZeroPolicy::ZeroPolicy(int actionDim, bool log) : m_actionDim(actionDim), m_log(log) {}
 
-vector<double> ZeroPolicy::search(vector<double> const&) {
+vector<double> ZeroPolicy::search(vector<double> const& context) {
+    if(m_log) {
+        cout << "looking for policy, context : ";
+        for(double c : context)
+            cout << c;
+        cout << " ... oh.. it's 0" << endl;
+    }
     return vector<double>(m_actionDim, 0);
 }
 
-void ZeroPolicy::reportReward(double) {}
+void ZeroPolicy::reportReward(double reward) {
+    if(m_log)
+        cout << " Got reward, probably didn't like my zeros :/ " << reward << endl;
+}
 
 ZMQPolicy::ZMQPolicy(int actionDim, string address) : m_actionDim(actionDim), m_context(1), m_channel(m_context, ZMQ_REP), m_waitingForReward(false) {
     m_channel.bind(address.c_str());
