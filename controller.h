@@ -63,18 +63,21 @@ class Driver {
   public:
 
 
-    Driver(tTrack* t, Spline spl);
+    Driver();
     ~Driver();
 
     // Callback functions called from TORCS.
-    void initTrack(tTrack* t, void *carHandle, void **carParmHandle, tSituation *s);
+    //void initTrack(tTrack* t, void *carHandle, void **carParmHandle, tSituation *s);
+    void setTrack(tTrack* t);
     void newRace(tCarElt* car, tSituation *s);
-    void drive(tSituation *s, float splinePos);
+    //void drive(tSituation *s, float splinePos);
+    void drive(tSituation *s, tCarElt* car, float splinePos);
     int pitCommand(tSituation *s);
     void endRace(tSituation *s);
 
     tCarElt *getCarPtr() { return car; }
     tTrack *getTrackPtr() { return track; }
+    void GetNewSpline(Spline spl);
     float getSpeed() { return mycardata->getSpeedInTrackDirection(); /*speed;*/ }
 
   private:

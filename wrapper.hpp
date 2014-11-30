@@ -5,6 +5,7 @@
 #include <car.h>
 #include <track.h>
 #include <raceman.h>
+#include "controller.h"
 
 class Wrapper{
 	private:
@@ -20,6 +21,7 @@ class Wrapper{
 		double m_distFromStart;
 
 	public:
+                Driver myDriver;
 		static Wrapper& getInstance();
 		void updateState(tCarElt* c, tSituation* s);
 		void getTrack();

@@ -10,6 +10,7 @@
 class Spline{
 	public:
 		Spline(std::vector<double> xPoints, std::vector<double> yPoints, double initCurvature); //Constructor
+		Spline(); //Constructor
 		double computeSplineValue(double evalPoint); 
 		double getCurvature(double evalPoint);
 	private:
