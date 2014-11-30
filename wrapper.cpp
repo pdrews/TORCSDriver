@@ -42,7 +42,7 @@ void Wrapper::getTrack(){
 		}
 		test[i] = std::make_pair(seg->radius, pred + seg->length);
 		seg = seg->next;
-		std::cout << "Seg " << i << " : cum_length = " << test[i].second << std::endl;
+		//std::cout << "Seg " << i << " : cum_length = " << test[i].second << std::endl;
 	}
         theTrack = test;
 }

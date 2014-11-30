@@ -23,7 +23,7 @@
 #include <robottools.h>
 #include <robot.h>
 
-#include "wrapper.hpp"
+#include "singleton.h"
 
 static tTrack	*curTrack;
 
@@ -79,25 +79,28 @@ InitFuncPt(int index, void *pt)
 static void  
 initTrack(int index, tTrack* track, void *carHandle, void **carParmHandle, tSituation *s) 
 { 
+    singleton& wrap = singleton::getInstance();
+    wrap.myDriver.setTrack(track);
     std::cout << "Got here!!!" << std::endl; 
     curTrack = track;
-    *carParmHandle = NULL; 
+    *carParmHandle = NULL;
 } 
 
 /* Start a new race. */
 static void  
 newrace(int index, tCarElt* car, tSituation *s) 
 { 
-	Wrapper& wrap = Wrapper::getInstance();
+	singleton& wrap = singleton::getInstance();
 	wrap.updateState(car, s);
 	wrap.getTrack();
+        wrap.myDriver.newRace(car, s);
 }
  
 /* Drive during race. */
 static void
 drive(int index, tCarElt* car, tSituation *s)
 {
-	Wrapper& wrap = Wrapper::getInstance();
+	singleton& wrap = singleton::getInstance();
 	wrap.updateState(car, s);
 	counter = (counter + 1)%10;
 	if (counter == 0){
@@ -118,6 +121,7 @@ drive(int index, tCarElt* car, tSituation *s)
 	car->ctrl.gear = 1; // first gear
 	car->ctrl.accelCmd = 0.3; // 30% accelerator pedal
 	car->ctrl.brakeCmd = 0.0; // no brakes
+        wrap.myDriver.drive(s, car, 0.0);
 }
 
 /* End of the current race */

@@ -2,7 +2,7 @@
 #define SINGLETON_H
 
 #include "wrap.h"
-
+#include "controller.h"
 
 class singleton{
 private:
@@ -12,9 +12,11 @@ private:
 	singleton (const singleton&){};
 
 	static singleton m_instance;
+
 public:
 	static singleton& getInstance();
 	wrapper wrap;
+        Driver myDriver;
 };
 
 #endif
