@@ -15,7 +15,8 @@ void wrapper::updateState(tCarElt* c, tSituation* s){
 		tmp -= m_trackLength;
 	}
 	m_distFromStart += getDistanceFromStart() - tmp;
-	//cout << "distFromStart = " << m_distFromStart << endl;
+	cout << "distFromStart = " << m_distFromStart << endl;
+	cout << "curvature = " << getCurvature(getDistanceFromStart()) << endl;
 }
 
 void wrapper::getTrack(){
@@ -26,6 +27,7 @@ void wrapper::getTrack(){
 	int nbSeg = seg->prev->id + 1;
 	m_trackData = vector < pair<float,float> >();
 	float pred = 0.0;
+	float radius = 0.0;
 	for(int i=0; i<nbSeg; i++){
 		if(seg->type2 == 1){
 			if(i == 0){
@@ -33,7 +35,18 @@ void wrapper::getTrack(){
 			}else{
 				pred = m_trackData[i-1].first;
 			}
-			pair<float, float>tmp (pred + seg->length, seg->radius);
+			switch(seg->type){
+				case 1: /**< Right curve */
+					radius = seg->radius;
+					break;
+				case 2: /**< Left curve */
+					radius = - seg->radius;
+					break;
+				case 3:
+					radius = 0.0;
+					break;
+			}
+			pair<float, float>tmp (pred + seg->length, radius);
 			m_trackData.push_back(tmp);
 			seg = seg->next;
 			//std::cout << "Seg " << i ;
@@ -58,6 +71,17 @@ float wrapper::getDistanceFromStart(){
 	}
 }
 
+float wrapper::getCurvature(float seg){
+	if(m_trackLength!=0){
+		int i=0;
+		while(m_trackData[i].first < seg){
+			i++;
+		}
+		return m_trackData[i-1].second;
+	}else{
+		return 0.0;
+	}
+}
 
 void wrapper::print(){
 	tPublicCar data = m_car->pub;

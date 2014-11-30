@@ -14,6 +14,10 @@
 
 using namespace std;
 
+#define TR_RGT      1           /**< Right curve */ 
+#define TR_LFT      2           /**< Left curve */ 
+#define TR_STR      3           /**< Straight */ 
+
 class wrapper{
 private:
 public:
@@ -28,6 +32,7 @@ public:
 	void updateState(tCarElt* c, tSituation* s);
 	void getTrack();
 	float getDistanceFromStart(); 
+	float getCurvature(float seg);
 
 	void print();
 	void printStuff(char* name, tdble stuff);

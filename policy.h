@@ -12,11 +12,12 @@ class Policy {
 ///This policy always returns 0 actions, use it to test policy integration with the controller
 class ZeroPolicy : public Policy {
     public:
-        explicit ZeroPolicy(int actionDim);
+        explicit ZeroPolicy(int actionDim, bool log = false);
         std::vector<double> search(std::vector<double> const& state);
         void reportReward(double reward);
     private:
         int const m_actionDim;
+        bool m_log;
 };
 
 ///This is the actual policy that communicates with REPS
