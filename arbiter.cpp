@@ -10,7 +10,7 @@ Arbiter::Arbiter(int nb_segments, int nb_intervals_per_segment, Controller* cont
 void Arbiter::drive()
 {
 	float length_from_start = m_wrapper->getDistanceFromStart();
-	tCarElt car_state = m_wrapper->getCarState();
+	tCarElt& car_state = m_wrapper->getCarState();
 	//get the segment id which we are on
 	int segment_position_idx = (int)floor(length_from_start/m_segment_length);
 	//get position in meters of the start of segment we are on

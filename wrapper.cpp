@@ -46,6 +46,11 @@ void Wrapper::getTrack(){
 	}
 }
 
+tCarElt& Wrapper::getCarState()
+{
+	return m_car;
+}
+
 void Wrapper::print(){
 	tPublicCar data = m_car->pub;
 

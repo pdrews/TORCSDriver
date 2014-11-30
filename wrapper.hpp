@@ -26,7 +26,7 @@ class Wrapper{
 		void print();
 		void printStuff(char* name, tdble stuff);
 		void test();
-				
+		tCarElt& getCarState();
 };
 
 #endif
