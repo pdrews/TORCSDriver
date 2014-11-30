@@ -18,6 +18,8 @@
  ***************************************************************************/
 
 #include "controller.h"
+#include <iostream>
+#include "singleton.h"
 
 const float Driver::MAX_UNSTUCK_ANGLE = 15.0f/180.0f*PI;  // [radians] If the angle of the car on the track is smaller, we assume we are not stuck.
 const float Driver::UNSTUCK_TIME_LIMIT = 2.0f;        // [s] We try to get unstuck after this time.
@@ -53,26 +55,34 @@ const float Driver::USE_LEARNED_OFFSET_RANGE = 0.2f;    // [m] if offset < this 
 
 const float Driver::TEAM_REAR_DIST = 50.0f;         //
 const int Driver::TEAM_DAMAGE_CHANGE_LEAD = 700;      // When to change position in the team?
-const float Driver::LOOKAHEAD_STEP = 0.5f;
-const float Driver::MAX_LOOKAHEAD_DIST = 0.5f;
+const float Driver::LOOKAHEAD_STEP = 100.0f;
+const float Driver::MAX_LOOKAHEAD_DIST = 500.0f;
 const float Driver::SPEED_MARGIN = 2.0f;
 const float Driver::CAR_BRAKE_CONSTANT = 1.0f;
 
 
 // Static variables.
-//Cardata *Driver::cardata = NULL;
+Cardata *Driver::cardata = NULL;
 double Driver::currentsimtime;
 
 
-Driver::Driver(tTrack* t, Spline spl) : currentTrajectory(spl)
+Driver::Driver()
 {
   //INDEX = index;
   
   MU_FACTOR = 0.69f;
-  track = t;
   CA = 1;
 }
 
+void Driver::setSpline(Spline spl)
+{
+  currentTrajectory = spl;
+}
+
+void Driver::setTrack(tTrack* t)
+{
+  track = t;
+}
 
 Driver::~Driver()
 {
@@ -180,7 +190,7 @@ void Driver::newRace(tCarElt* car, tSituation *s)
 
 
 // Drive during race.
-void Driver::drive(tSituation *s, float splinePos)
+void Driver::drive(tSituation *s, tCarElt* car, float splinePos)
 {
   memset(&car->ctrl, 0, sizeof(tCarCtrl));
 
@@ -199,7 +209,7 @@ void Driver::drive(tSituation *s, float splinePos)
     car->_gearCmd = getGear();
     car->_brakeCmd = filterABS(filterBrakeSpeed(getBrake(splinePos)));
     if (car->_brakeCmd == 0.0f) {
-      car->_accelCmd = filterTCL(filterTrk(filterOverlap(getAccel(splinePos))));
+      car->_accelCmd = filterTCL(getAccel(splinePos));
     } else {
       car->_accelCmd = 0.0f;
       }
@@ -267,11 +277,12 @@ void Driver::computeRadius(float *radius)
 #endif
 
 // Compute the allowed speed on a segment.
-float Driver::getAllowedSpeed(float curPosition)
+float Driver::getAllowedSpeed(float curPosition, float trackCurve)
 {
   float mu = car->_trkPos.seg->surface->kFriction*TIREMU*MU_FACTOR;
   //float mu = segment->surface->kFriction*TIREMU*MU_FACTOR;
   float r = 1.0/currentTrajectory.getCurvature(curPosition);
+  r = MIN(5000.0f,r);
   //float dr = learn->getRadius(segment);
   //if (dr < 0.0f) {
   //  r += dr;
@@ -285,7 +296,11 @@ float Driver::getAllowedSpeed(float curPosition)
   ) {
     r += dr;
   }*/
+
+  r = 1.0 / ((1.0 / trackCurve) + (1.0 / r));
+
   r = MAX(1.0, r);
+  std::cout << "Rad " << r << " " << sqrt((mu*G*r)/(1.0f - MIN(1.0f, r*CA*mu/mass))) << std::endl;
 
   return sqrt((mu*G*r)/(1.0f - MIN(1.0f, r*CA*mu/mass)));
 }
@@ -306,7 +321,8 @@ float Driver::getDistToSegEnd()
 float Driver::getAccel(float trackPos)
 {
   if (car->_gear > 0) {
-    float allowedspeed = getAllowedSpeed(trackPos);
+    float trackCurve = getCurve(trackPos);
+    float allowedspeed = getAllowedSpeed(trackPos,trackCurve);
     if (allowedspeed > car->_speed_x + FULL_ACCEL_MARGIN) {
       return 1.0;
     } else {
@@ -337,6 +353,7 @@ float Driver::filterOverlap(float accel)
 // Compute initial brake value.
 float Driver::getBrake(float trajectoryPosition)
 {
+    singleton& sing = singleton::getInstance();
   // Car drives backward?
   if (car->_speed_x < -MAX_UNSTUCK_SPEED) {
     // Yes, brake.
@@ -354,14 +371,25 @@ float Driver::getBrake(float trajectoryPosition)
     // Need to define MAX_LOOKAHEAD_DIST
     // Now iterate backward in our spline to get speeds
     float allowedspeed = 10000;
+    float toStart = sing.wrap.getDistanceFromStart();
     while (currentlookahead > trajectoryPosition) {
-
-      float pointAllowedSpeed = getAllowedSpeed(currentlookahead);
+      std::cout << "lookahead " << currentlookahead;
+      float trackCurve = getCurve(toStart + currentlookahead - trajectoryPosition);
+      if (trackCurve == 0.0) 
+      {
+        trackCurve = 5000;
+      }
+      std::cout << "curve" << trackCurve << std::endl;
+      float pointAllowedSpeed = getAllowedSpeed(currentlookahead, trackCurve);
+      if (pointAllowedSpeed > 100)
+        pointAllowedSpeed = 100;
+      cout << "Allowed speed " << pointAllowedSpeed << std::endl;
       if (pointAllowedSpeed < allowedspeed) {
         allowedspeed = pointAllowedSpeed;
         continue;
       }
-      float centripetalAcceleration = allowedspeed * allowedspeed * currentTrajectory.getCurvature(currentlookahead);
+      float centripetalAcceleration = allowedspeed * allowedspeed * (MIN(currentTrajectory.getCurvature(currentlookahead),0.0001) + (1.0 / trackCurve));
+      cout << "acceleration " << centripetalAcceleration << std::endl;
       // TODO figure out the max allowed acceleration
       float maxBrakeAccel = sqrt(maxCarAcceleration * maxCarAcceleration - 
           centripetalAcceleration * centripetalAcceleration);
@@ -371,11 +399,24 @@ float Driver::getBrake(float trajectoryPosition)
       
       currentlookahead -= LOOKAHEAD_STEP;
     }
+    allowedspeed = 20.0;
+    cout << "Final Allowed speed " << allowedspeed << std::endl;
 
     //float allowedspeed = getAllowedSpeed(segptr);
     return MAX(0.0f, MIN(1.0f, (car->_speed_x + SPEED_MARGIN - allowedspeed)*CAR_BRAKE_CONSTANT));
 
   }
+}
+
+double Driver::getCurve(float dist)
+{
+  singleton& sing = singleton::getInstance();
+  int i = car->pub.trkPos.seg->id;
+  while(i < sing.wrap.m_trackData.size() && dist < sing.wrap.m_trackData[i].first)
+  {
+    i ++;
+  }
+  return sing.wrap.m_trackData[i-1].second;
 }
 
 

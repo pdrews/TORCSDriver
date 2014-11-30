@@ -22,9 +22,9 @@
 #include <raceman.h> 
 #include <robottools.h>
 #include <robot.h>
-#include "Spline.h"
 
-#include "wrapper.hpp"
+#include "singleton.h"
+#include "wrap.h"
 
 static tTrack	*curTrack;
 
@@ -45,13 +45,12 @@ static int counter = 0;
 extern "C" int 
 racerx(tModInfo *modInfo) 
 {
-    std::cout << "Got started!!!" << std::endl; 
     memset(modInfo, 0, 10*sizeof(tModInfo));
 
     modInfo->name    = strdup(botname);		/* name of the module (short) */
     modInfo->desc    = strdup(botdesc);	/* description of the module (can be long) */
     modInfo->fctInit = InitFuncPt;		/* init function */
-    modInfo->gfId    = ROB_IDENT;		/* supported framework version */
+    modInfo->gfId    = 0;		/* supported framework version */
     modInfo->index   = 1;
 
     return 0; 
@@ -61,8 +60,6 @@ racerx(tModInfo *modInfo)
 static int 
 InitFuncPt(int index, void *pt) 
 { 
-    
-    std::cout << "Got there!!!" << std::endl; 
     tRobotItf *itf  = (tRobotItf *)pt; 
 
     itf->rbNewTrack = initTrack; /* Give the robot the track view called */ 
@@ -80,73 +77,50 @@ InitFuncPt(int index, void *pt)
 static void  
 initTrack(int index, tTrack* track, void *carHandle, void **carParmHandle, tSituation *s) 
 { 
-    std::cout << "Got here!!!" << std::endl; 
+    singleton& sing = singleton::getInstance();
+    sing.myDriver.setTrack(track);
     curTrack = track;
-    *carParmHandle = NULL; 
+    *carParmHandle = NULL;
 } 
 
 /* Start a new race. */
 static void  
 newrace(int index, tCarElt* car, tSituation *s) 
 { 
-	Wrapper& wrap = Wrapper::getInstance();
+	singleton& sing = singleton::getInstance();
+	wrapper& wrap = sing.wrap;
 	wrap.updateState(car, s);
 	wrap.getTrack();
+        sing.myDriver.newRace(car, s);
 }
  
 /* Drive during race. */
 static void
 drive(int index, tCarElt* car, tSituation *s)
 {
-	Wrapper& wrap = Wrapper::getInstance();
+	singleton& sing = singleton::getInstance();
+	wrapper& wrap = sing.wrap;
 	wrap.updateState(car, s);
 	counter = (counter + 1)%10;
 	if (counter == 0){
 	//	wrap.print();
 	}
-    memset(&car->ctrl, 0, sizeof(tCarCtrl));
 
-    float angle;
-    const float SC = 1.0;
+	memset(&car->ctrl, 0, sizeof(tCarCtrl));
 
-    angle = RtTrackSideTgAngleL(&(car->_trkPos)) - car->_yaw;
-    NORM_PI_PI(angle); // put the angle back in the range from -PI to PI
-    angle -= SC*car->_trkPos.toMiddle/car->_trkPos.seg->width;
+	float angle;
+	const float SC = 1.0;
 
-    // set up the values to return
-    car->ctrl.steer = angle / car->_steerLock;
-    car->ctrl.gear = 1; // first gear
-    car->ctrl.accelCmd = 0.3; // 30% accelerator pedal
-    car->ctrl.brakeCmd = 0.0; // no brakes
+	angle = RtTrackSideTgAngleL(&(car->_trkPos)) - car->_yaw;
+	NORM_PI_PI(angle); // put the angle back in the range from -PI to PI
+	angle -= SC*car->_trkPos.toMiddle/car->_trkPos.seg->width;
 
-   //Testing spline function
-    std::vector<double> X(5); 
-    std::vector<double> Y(5); 
-    X[0] = 0.1;
-    X[1] = 0.4;
-    X[2] = 1.2;
-    X[3] = 1.8;
-    X[4] = 2.0;
-    Y[0] = 0.1;
-    Y[1] = 0.7;
-    Y[2] = 0.6;
-    Y[3] = 1.1;
-    Y[4] = 0.9;
-
-    double evaluationPoint = 0.7;
-    double initCurv = 0.0;
-    Spline alexSpline(X,Y,initCurv);
-    //std::vector<double> values;
-    //values = alexSpline.getValues(evaluationPoint);
-
-    std::cout << "Initial curvature:";
-    std::cout << initCurv << std::endl;
-    std::cout << "Evaluation point:";
-    std::cout << evaluationPoint << std::endl;
-    std::cout << "Spline value:";    
-    std::cout << alexSpline.computeSplineValue(evaluationPoint) << std::endl;
-    std::cout << "Curvature value:";    
-    std::cout << alexSpline.getCurvature(evaluationPoint) << std::endl;
+	// set up the values to return
+	car->ctrl.steer = angle / car->_steerLock;
+	car->ctrl.gear = 1; // first gear
+	car->ctrl.accelCmd = 0.3; // 30% accelerator pedal
+	car->ctrl.brakeCmd = 0.0; // no brakes
+        sing.myDriver.drive(s, car, 0.0);//sing.wrap.getDistanceFromStart());
 }
 
 /* End of the current race */

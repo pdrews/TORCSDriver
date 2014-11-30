@@ -63,25 +63,30 @@ class Driver {
   public:
 
 
-    Driver(tTrack* t, Spline spl);
+    Driver();
     ~Driver();
 
     // Callback functions called from TORCS.
-    void initTrack(tTrack* t, void *carHandle, void **carParmHandle, tSituation *s);
+    //void initTrack(tTrack* t, void *carHandle, void **carParmHandle, tSituation *s);
+    void setTrack(tTrack* t);
     void newRace(tCarElt* car, tSituation *s);
-    void drive(tSituation *s, float splinePos);
+    //void drive(tSituation *s, float splinePos);
+    void drive(tSituation *s, tCarElt* car, float splinePos);
     int pitCommand(tSituation *s);
     void endRace(tSituation *s);
 
     tCarElt *getCarPtr() { return car; }
     tTrack *getTrackPtr() { return track; }
+    void setSpline(Spline spl);
     float getSpeed() { return mycardata->getSpeedInTrackDirection(); /*speed;*/ }
 
   private:
     // Utility functions.
     bool isStuck();
     void update(tSituation *s);
-    float getAllowedSpeed(float splinePos);
+    double getCurve(float dist);
+
+    float getAllowedSpeed(float splinePos, float curvature);
     float getAccel(float splinePos);
     float getDistToSegEnd();
     float getBrake(float splinePos);
@@ -92,13 +97,13 @@ class Driver {
     //float getOffset();
     float brakedist(float allowedspeed, float mu);
 
-    float filterOverlap(float accel);
+    //float filterOverlap(float accel);
     float filterABS(float brake);
     float filterBrakeSpeed(float brake);
     float filterTurnSpeed(float brake);
 
     float filterTCL(float accel);
-    float filterTrk(float accel);
+    //float filterTrk(float accel);
 
     float filterTCL_RWD();
     float filterTCL_FWD();

@@ -21,10 +21,15 @@ Spline::Spline(std::vector<double> xPoints, std::vector<double> yPoints, double 
 
 }
 
+Spline::Spline()
+{}
+
 //Returns the value of the spline and the curvature as a vector [value, curvature]
 double Spline::computeSplineValue(double evalPoint){
-    return mySpline(evalPoint)[0];
+  return 0;  
+  return mySpline(evalPoint)[0];
 }
 double Spline::getCurvature(double evalPoint){
-    return mySpline(evalPoint)[1];
+  return 0;  
+  return mySpline(evalPoint)[1];
 }
