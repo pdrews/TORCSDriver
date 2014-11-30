@@ -29,7 +29,7 @@ void Arbiter::drive()
 	pair<vector<double>, vector<double> > future_arguments = this->getSubCurvatures(segment_position_idx, length_from_start_mod);	
 	vector<double> data_points_y = m_policy->search(future_arguments.second);
 	Spline* spline = new Spline(future_arguments.first, data_points_y, future_arguments.second[0]);
-	m_controller->setSpline(spline);
+	m_controller->setSpline(*spline);
 	//Controller interaction	
 	double spline_value = spline->computeSplineValue(length_from_start_mod);
 	m_controller->drive(situation, car_state, (float)spline_value);	
