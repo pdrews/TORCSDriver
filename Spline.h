@@ -1,11 +1,14 @@
 /*Spline Class*/
-
+#ifndef SPLINE_H
+#define SPLINE_H
 #include <cstdio>
 #include <cstdlib>
 #include <string.h>
 #include <math.h>
 #include <vector>
 #include "spline_library.h"
+
+
 
 class Spline{
 	public:
@@ -15,3 +18,4 @@ class Spline{
 	private:
 		tk::spline mySpline;
 };
+#endif
