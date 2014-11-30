@@ -23,7 +23,8 @@
 #include <robottools.h>
 #include <robot.h>
 
-#include "wrapper.hpp"
+#include "singleton.h"
+#include "wrap.h"
 
 static tTrack	*curTrack;
 
@@ -44,13 +45,12 @@ static int counter = 0;
 extern "C" int 
 racerx(tModInfo *modInfo) 
 {
-    std::cout << "Got started!!!" << std::endl; 
     memset(modInfo, 0, 10*sizeof(tModInfo));
 
     modInfo->name    = strdup(botname);		/* name of the module (short) */
     modInfo->desc    = strdup(botdesc);	/* description of the module (can be long) */
     modInfo->fctInit = InitFuncPt;		/* init function */
-    modInfo->gfId    = ROB_IDENT;		/* supported framework version */
+    modInfo->gfId    = 0;		/* supported framework version */
     modInfo->index   = 1;
 
     return 0; 
@@ -60,8 +60,6 @@ racerx(tModInfo *modInfo)
 static int 
 InitFuncPt(int index, void *pt) 
 { 
-    
-    std::cout << "Got there!!!" << std::endl; 
     tRobotItf *itf  = (tRobotItf *)pt; 
 
     itf->rbNewTrack = initTrack; /* Give the robot the track view called */ 
@@ -79,7 +77,6 @@ InitFuncPt(int index, void *pt)
 static void  
 initTrack(int index, tTrack* track, void *carHandle, void **carParmHandle, tSituation *s) 
 { 
-    std::cout << "Got here!!!" << std::endl; 
     curTrack = track;
     *carParmHandle = NULL; 
 } 
@@ -88,7 +85,8 @@ initTrack(int index, tTrack* track, void *carHandle, void **carParmHandle, tSitu
 static void  
 newrace(int index, tCarElt* car, tSituation *s) 
 { 
-	Wrapper& wrap = Wrapper::getInstance();
+	singleton& sing = singleton::getInstance();
+	wrapper& wrap = sing.wrap;
 	wrap.updateState(car, s);
 	wrap.getTrack();
 }
@@ -97,7 +95,8 @@ newrace(int index, tCarElt* car, tSituation *s)
 static void
 drive(int index, tCarElt* car, tSituation *s)
 {
-	Wrapper& wrap = Wrapper::getInstance();
+	singleton& sing = singleton::getInstance();
+	wrapper& wrap = sing.wrap;
 	wrap.updateState(car, s);
 	counter = (counter + 1)%10;
 	if (counter == 0){
