@@ -92,13 +92,13 @@ class Driver {
     //float getOffset();
     float brakedist(float allowedspeed, float mu);
 
-    float filterOverlap(float accel);
+    //float filterOverlap(float accel);
     float filterABS(float brake);
     float filterBrakeSpeed(float brake);
     float filterTurnSpeed(float brake);
 
     float filterTCL(float accel);
-    float filterTrk(float accel);
+    //float filterTrk(float accel);
 
     float filterTCL_RWD();
     float filterTCL_FWD();

@@ -199,7 +199,7 @@ void Driver::drive(tSituation *s, float splinePos)
     car->_gearCmd = getGear();
     car->_brakeCmd = filterABS(filterBrakeSpeed(getBrake(splinePos)));
     if (car->_brakeCmd == 0.0f) {
-      car->_accelCmd = filterTCL(filterTrk(filterOverlap(getAccel(splinePos))));
+      car->_accelCmd = filterTCL(getAccel(splinePos));
     } else {
       car->_accelCmd = 0.0f;
       }
