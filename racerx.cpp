@@ -24,6 +24,7 @@
 #include <robot.h>
 
 #include "singleton.h"
+#include "wrap.h"
 
 static tTrack	*curTrack;
 
@@ -44,13 +45,12 @@ static int counter = 0;
 extern "C" int 
 racerx(tModInfo *modInfo) 
 {
-    std::cout << "Got started!!!" << std::endl; 
     memset(modInfo, 0, 10*sizeof(tModInfo));
 
     modInfo->name    = strdup(botname);		/* name of the module (short) */
     modInfo->desc    = strdup(botdesc);	/* description of the module (can be long) */
     modInfo->fctInit = InitFuncPt;		/* init function */
-    modInfo->gfId    = ROB_IDENT;		/* supported framework version */
+    modInfo->gfId    = 0;		/* supported framework version */
     modInfo->index   = 1;
 
     return 0; 
@@ -60,8 +60,6 @@ racerx(tModInfo *modInfo)
 static int 
 InitFuncPt(int index, void *pt) 
 { 
-    
-    std::cout << "Got there!!!" << std::endl; 
     tRobotItf *itf  = (tRobotItf *)pt; 
 
     itf->rbNewTrack = initTrack; /* Give the robot the track view called */ 
@@ -79,9 +77,8 @@ InitFuncPt(int index, void *pt)
 static void  
 initTrack(int index, tTrack* track, void *carHandle, void **carParmHandle, tSituation *s) 
 { 
-    singleton& wrap = singleton::getInstance();
-    wrap.myDriver.setTrack(track);
-    std::cout << "Got here!!!" << std::endl; 
+    singleton& sing = singleton::getInstance();
+    sing.myDriver.setTrack(track);
     curTrack = track;
     *carParmHandle = NULL;
 } 
@@ -90,17 +87,19 @@ initTrack(int index, tTrack* track, void *carHandle, void **carParmHandle, tSitu
 static void  
 newrace(int index, tCarElt* car, tSituation *s) 
 { 
-	singleton& wrap = singleton::getInstance();
+	singleton& sing = singleton::getInstance();
+	wrapper& wrap = sing.wrap;
 	wrap.updateState(car, s);
 	wrap.getTrack();
-        wrap.myDriver.newRace(car, s);
+        sing.myDriver.newRace(car, s);
 }
  
 /* Drive during race. */
 static void
 drive(int index, tCarElt* car, tSituation *s)
 {
-	singleton& wrap = singleton::getInstance();
+	singleton& sing = singleton::getInstance();
+	wrapper& wrap = sing.wrap;
 	wrap.updateState(car, s);
 	counter = (counter + 1)%10;
 	if (counter == 0){
@@ -121,7 +120,7 @@ drive(int index, tCarElt* car, tSituation *s)
 	car->ctrl.gear = 1; // first gear
 	car->ctrl.accelCmd = 0.3; // 30% accelerator pedal
 	car->ctrl.brakeCmd = 0.0; // no brakes
-        wrap.myDriver.drive(s, car, 0.0);
+        sing.myDriver.drive(s, car, 0.0);//sing.wrap.getDistanceFromStart());
 }
 
 /* End of the current race */

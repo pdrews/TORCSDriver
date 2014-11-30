@@ -84,7 +84,9 @@ class Driver {
     // Utility functions.
     bool isStuck();
     void update(tSituation *s);
-    float getAllowedSpeed(float splinePos);
+    double getCurve(float dist);
+
+    float getAllowedSpeed(float splinePos, float curvature);
     float getAccel(float splinePos);
     float getDistToSegEnd();
     float getBrake(float splinePos);
