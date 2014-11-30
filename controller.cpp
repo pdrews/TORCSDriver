@@ -69,6 +69,19 @@ Driver::Driver(tTrack* t, Spline spl) : currentTrajectory(spl)
   //INDEX = index;
   
   MU_FACTOR = 0.69f;
+<<<<<<< Updated upstream
+=======
+  CA = 1;
+}
+
+void Driver::setSpline(Spline spl)
+{
+  currentTrajectory = spl;
+}
+
+void Driver::setTrack(tTrack* t)
+{
+>>>>>>> Stashed changes
   track = t;
   CA = 1;
 }
@@ -267,7 +280,7 @@ void Driver::computeRadius(float *radius)
 #endif
 
 // Compute the allowed speed on a segment.
-float Driver::getAllowedSpeed(float curPosition)
+float Driver::getAllowedSpeed(float curPosition, float trackCurve)
 {
   float mu = car->_trkPos.seg->surface->kFriction*TIREMU*MU_FACTOR;
   //float mu = segment->surface->kFriction*TIREMU*MU_FACTOR;
@@ -285,6 +298,9 @@ float Driver::getAllowedSpeed(float curPosition)
   ) {
     r += dr;
   }*/
+
+  r = trackCurve + r;
+
   r = MAX(1.0, r);
 
   return sqrt((mu*G*r)/(1.0f - MIN(1.0f, r*CA*mu/mass)));
@@ -354,9 +370,10 @@ float Driver::getBrake(float trajectoryPosition)
     // Need to define MAX_LOOKAHEAD_DIST
     // Now iterate backward in our spline to get speeds
     float allowedspeed = 10000;
+    float toStart = car->_trkPos.toStart;
     while (currentlookahead > trajectoryPosition) {
-
-      float pointAllowedSpeed = getAllowedSpeed(currentlookahead);
+      float trackCurve = getCurve(toStart + currentlookahead - trajectoryPosition);
+      float pointAllowedSpeed = getAllowedSpeed(currentlookahead, trackCurve);
       if (pointAllowedSpeed < allowedspeed) {
         allowedspeed = pointAllowedSpeed;
         continue;
@@ -376,6 +393,13 @@ float Driver::getBrake(float trajectoryPosition)
     return MAX(0.0f, MIN(1.0f, (car->_speed_x + SPEED_MARGIN - allowedspeed)*CAR_BRAKE_CONSTANT));
 
   }
+}
+
+getCurve(float dist)
+{
+  Wrapper& wrap = Wrapper::getInstance();
+  int i = 0;
+  while(i < wrap.nbSeg && dist < wrap.theTrack[i].second)
 }
 
 

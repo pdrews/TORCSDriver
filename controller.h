@@ -75,6 +75,10 @@ class Driver {
 
     tCarElt *getCarPtr() { return car; }
     tTrack *getTrackPtr() { return track; }
+<<<<<<< Updated upstream
+=======
+    void setSpline(Spline spl);
+>>>>>>> Stashed changes
     float getSpeed() { return mycardata->getSpeedInTrackDirection(); /*speed;*/ }
 
   private:

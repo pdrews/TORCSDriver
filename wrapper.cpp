@@ -32,7 +32,7 @@ void Wrapper::getTrack(){
 		seg = seg->next;
 	}
 	int nbSeg = seg->prev->id + 1;
-	std::vector < std::pair<int, float> > test (nbSeg, std::make_pair(0, 0.0));
+	std::vector < std::pair<float, float> > test (nbSeg, std::make_pair(0, 0.0));
 	float pred = 0.0;
 	for(int i=0; i<nbSeg; i++){
 		if(i == 0){
@@ -40,10 +40,11 @@ void Wrapper::getTrack(){
 		}else{
 			pred = test[i-1].second;
 		}
-		test[i] = std::make_pair(i, pred + seg->length);
+		test[i] = std::make_pair(seg->radius, pred + seg->length);
 		seg = seg->next;
 		std::cout << "Seg " << i << " : cum_length = " << test[i].second << std::endl;
 	}
+        theTrack = test;
 }
 
 void Wrapper::print(){
