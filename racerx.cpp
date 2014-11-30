@@ -136,17 +136,17 @@ drive(int index, tCarElt* car, tSituation *s)
     double evaluationPoint = 0.7;
     double initCurv = 0.0;
     Spline alexSpline(X,Y,initCurv);
-    std::vector<double> values;
-    values = alexSpline.getValues(evaluationPoint);
+    //std::vector<double> values;
+    //values = alexSpline.getValues(evaluationPoint);
 
     std::cout << "Initial curvature:";
     std::cout << initCurv << std::endl;
     std::cout << "Evaluation point:";
     std::cout << evaluationPoint << std::endl;
     std::cout << "Spline value:";    
-    std::cout << values[0] << std::endl;
+    std::cout << alexSpline.computeSplineValue(evaluationPoint) << std::endl;
     std::cout << "Curvature value:";    
-    std::cout << values[1] << std::endl;
+    std::cout << alexSpline.getCurvature(evaluationPoint) << std::endl;
 }
 
 /* End of the current race */

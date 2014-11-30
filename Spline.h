@@ -10,7 +10,8 @@
 class Spline{
 	public:
 		Spline(std::vector<double> xPoints, std::vector<double> yPoints, double initCurvature); //Constructor
-		std::vector<double> getValues(double evalPoint); //Returns the value of the spline and the curvature as a vector [value, curvature]
+		double computeSplineValue(double evalPoint); 
+		double getCurvature(double evalPoint);
 	private:
 		tk::spline mySpline;
 };
