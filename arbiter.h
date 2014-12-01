@@ -34,6 +34,7 @@ private:
 	float m_segment_length;
 	float m_interval_length;
 	int m_nb_intervals_per_segment;
+    float m_segment_start_time;
 	map<int, vector<double> > m_curvatures;
 	map<int,vector<double> > m_positions_x;
 	void collectIntervalPositions(int, double, double);

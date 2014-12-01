@@ -3,6 +3,7 @@
 #include <cstdlib>
 
 #include <iostream>
+#include "singleton.h"
 
 using namespace std;
 using namespace zmq;
@@ -13,9 +14,9 @@ ZeroPolicy::ZeroPolicy(int actionDim, bool log) : m_actionDim(actionDim), m_log(
 
 vector<double> ZeroPolicy::search(vector<double> const& context) {
     if(m_log) {
-        cout << "looking for policy, context : ";
+        cout << "looking for policy at distance from start " << singleton::getInstance().wrap.getDistanceFromStart() << ", context : ";
         for(int i = 0; i < context.size(); i++) 
-            cout << context[i];
+            cout << context[i] << ", ";
         cout << " ... oh.. it's 0" << endl;
     }
     return vector<double>(m_actionDim, 0);
@@ -23,7 +24,7 @@ vector<double> ZeroPolicy::search(vector<double> const& context) {
 
 void ZeroPolicy::reportReward(double reward) {
     if(m_log)
-        cout << " Got reward, probably didn't like my zeros :/ " << reward << endl;
+        cout << " Got reward at distance from start " << singleton::getInstance().wrap.getDistanceFromStart() <<  ", probably didn't like my zeros :/ " << reward << endl;
 }
 
 ZMQPolicy::ZMQPolicy(int actionDim, string address) : m_actionDim(actionDim), m_context(1), m_channel(m_context, ZMQ_REP), m_waitingForReward(false) {

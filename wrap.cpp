@@ -15,8 +15,6 @@ void wrapper::updateState(tCarElt* c, tSituation* s){
 		tmp -= m_trackLength;
 	}
 	m_distFromStart += getDistanceFromStart() - tmp;
-	cout << "distFromStart = " << m_distFromStart << endl;
-	cout << "curvature = " << getCurvature(getDistanceFromStart()) << endl;
 }
 
 void wrapper::getTrack(){
@@ -120,5 +118,8 @@ void wrapper::printStuff(char* name, tdble stuff){
 	std::cout << stuff << std::endl;
 }
 
+float wrapper::getCurrentTime() {
+    return m_situation->currentTime;
+}
 
 

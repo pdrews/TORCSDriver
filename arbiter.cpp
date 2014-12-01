@@ -3,7 +3,7 @@
 
 Arbiter::Arbiter(double segment_length, int nb_intervals_per_segment):m_segment_length(segment_length),m_nb_intervals_per_segment(nb_intervals_per_segment)
 	{
-		this->setPolicy(new ZeroPolicy(2*m_nb_intervals_per_segment));
+		this->setPolicy(new ZeroPolicy(2*m_nb_intervals_per_segment, true));
 		this->setController( new Driver());
 		this->setWrapper( &singleton::getInstance().wrap);
 		this->m_prev_spline = NULL;
@@ -22,47 +22,36 @@ Arbiter::Arbiter(double segment_length, int nb_intervals_per_segment):m_segment_
 }*/
 void Arbiter::drive()
 {
-	cout << "drive\n";
 	//Get position from start of race
 	float length_from_start = m_wrapper->m_distFromStart;
-	cout << "1\n"<<endl;	
 	//Get position from start of track
 	float length_from_start_mod = m_wrapper->getDistanceFromStart();
-	cout << "2\n"<<endl;	
 	tCarElt* car_state = m_wrapper->m_car;
-	cout << "3\n"<<endl;	
 	tSituation* situation = m_wrapper->m_situation;
-	cout << "4\n"<<endl;	
 	//Get the segment id which we are on from start of race
 	int segment_position_idx = length_from_start/m_segment_length;
-	cout << "5\n"<<endl;	
 	//Get position in meters of the start of segment we are on
 	float segment_position_met = segment_position_idx * m_segment_length;
-	cout << "6\n"<<endl;	
 	//If we do not have splitted the two consecutives segments into intervals, do it
 	double prev_spline_value = 0;
 	if (m_prev_spline != NULL)
 	{
 		prev_spline_value = m_prev_spline->getCurvature(length_from_start_mod);
 	}
-	cout << "7"<<endl;
 	bool cond = (m_curvatures.find(segment_position_idx) != m_curvatures.end());
 	//int cond = m_curvatures.count(segment_position_idx);	
-	cout << "8"<<endl;
 	if (!cond) 
 	{
-		cout << "9"<<endl;
+        float segment_time = m_wrapper->getCurrentTime() - m_segment_start_time;
+        m_segment_start_time = m_wrapper->getCurrentTime();
 		float end_two_segments_met = segment_position_met + 2*m_segment_length;
-		cout << "before collecting curvatures \n"<<endl;
 		this->collectIntervalPositions(segment_position_idx, segment_position_met, end_two_segments_met);
-		cout << "before policy search \n"<<endl;
+        m_policy->reportReward(segment_time);
 		vector<double> data_points_y = m_policy->search(m_curvatures[segment_position_idx]);
 		m_prev_spline = new Spline(m_positions_x[segment_position_idx], data_points_y, prev_spline_value);
-		cout << "set spline\n"<<endl;
 		m_controller->setSpline(*m_prev_spline);
 	}
 	
-	cout << "end fct\n"<<endl;
 	//Policy-Spline interaction
 	//pair<vector<double>, vector<double> > future_arguments = this->getSubCurvatures(segment_position_idx, length_from_start_mod);	
 	
@@ -86,8 +75,6 @@ void Arbiter::collectIntervalPositions(int segment_id, double beg_measure, doubl
 		double curvature_i = m_wrapper->getCurvature(fmod(i_meas,m_wrapper->m_trackLength));
 		m_curvatures[segment_id].push_back(curvature_i);
 		m_positions_x[segment_id].push_back(fmod(i_meas,m_wrapper->m_trackLength));
-		cout << i_meas << " "<<m_wrapper->m_trackLength << " ";		
-		cout << fmod(i_meas,m_wrapper->m_trackLength) << endl;
 	}
 }
 pair<vector<double>,vector<double> > Arbiter::getSubCurvatures(int segment_id,float position)

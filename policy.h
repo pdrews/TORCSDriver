@@ -1,3 +1,6 @@
+#ifndef POLICY_H_
+#define POLICY_H_
+
 #include <vector>
 #include <string>
 #include <zmq.hpp>
@@ -32,4 +35,6 @@ class ZMQPolicy : public Policy {
         zmq::socket_t m_channel;
         bool m_waitingForReward;
 };
+
+#endif
 

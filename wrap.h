@@ -29,6 +29,7 @@ public:
 
 	wrapper();
 
+    float getCurrentTime();
 	void updateState(tCarElt* c, tSituation* s);
 	void getTrack();
 	float getDistanceFromStart(); 
