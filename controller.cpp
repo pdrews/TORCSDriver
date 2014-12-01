@@ -55,9 +55,9 @@ const float Driver::USE_LEARNED_OFFSET_RANGE = 0.2f;    // [m] if offset < this 
 
 const float Driver::TEAM_REAR_DIST = 50.0f;         //
 const int Driver::TEAM_DAMAGE_CHANGE_LEAD = 700;      // When to change position in the team?
-const float Driver::LOOKAHEAD_STEP = 100.0f;
-const float Driver::MAX_LOOKAHEAD_DIST = 500.0f;
-const float Driver::SPEED_MARGIN = 2.0f;
+const float Driver::LOOKAHEAD_STEP = 1.0f;
+const float Driver::MAX_LOOKAHEAD_DIST = 299.0f;
+const float Driver::SPEED_MARGIN = 1.0f;
 const float Driver::CAR_BRAKE_CONSTANT = 1.0f;
 
 
@@ -70,7 +70,7 @@ Driver::Driver()
 {
   //INDEX = index;
   
-  MU_FACTOR = 0.69f;
+  MU_FACTOR = 0.7f;
   CA = 1;
 }
 
@@ -300,9 +300,8 @@ float Driver::getAllowedSpeed(float curPosition, float trackCurve)
   r = 1.0 / ((1.0 / trackCurve) + (1.0 / r));
 
   r = MAX(1.0, r);
-  //std::cout << "Rad " << r << " " << sqrt((mu*G*r)/(1.0f - MIN(1.0f, r*CA*mu/mass))) << std::endl;
 
-  return sqrt((mu*G*r)/(1.0f - MIN(1.0f, r*CA*mu/mass)));
+  return sqrt((mu*G*r));///(1.0f - MIN(1.0f, r*CA*mu/mass)));
 }
 
 
@@ -322,8 +321,10 @@ float Driver::getAccel(float trackPos)
 {
   if (car->_gear > 0) {
     float trackCurve = getCurve(trackPos);
+    cout << "track pos " << trackPos << " track curve " << getCurve(trackPos);
     float allowedspeed = getAllowedSpeed(trackPos,trackCurve);
-    if (allowedspeed > car->_speed_x + FULL_ACCEL_MARGIN) {
+    cout << " speed " << allowedspeed << endl;
+    if (allowedspeed > (car->_speed_x + FULL_ACCEL_MARGIN)) {
       return 1.0;
     } else {
       float gr = car->_gearRatio[car->_gear + car->_gearOffset];
@@ -372,32 +373,45 @@ float Driver::getBrake(float trajectoryPosition)
     // Now iterate backward in our spline to get speeds
     float allowedspeed = 10000;
     float toStart = sing.wrap.getDistanceFromStart();
+    cout << "curves";
+    cout.precision(5);
     while (currentlookahead > trajectoryPosition) {
-      //std::cout << "lookahead " << currentlookahead;
-      float trackCurve = getCurve(toStart + currentlookahead - trajectoryPosition);
-      if (trackCurve == 0.0) 
-      {
-        trackCurve = 5000;
-      }
-      //std::cout << "curve" << trackCurve << std::endl;
+      //cout << "lookahead " << currentlookahead;
+      double trackCurve = getCurve(toStart + currentlookahead - trajectoryPosition);
+      double totalCurvature = (double)MIN(currentTrajectory.getCurvature(currentlookahead), 0.0000001) + 1.0/trackCurve;
+      //cout << 1.0/totalCurvature << " ";
       float pointAllowedSpeed = getAllowedSpeed(currentlookahead, trackCurve);
       if (pointAllowedSpeed > 100)
         pointAllowedSpeed = 100;
+      //cout << "Allowed speed " << pointAllowedSpeed << std::endl;
       if (pointAllowedSpeed < allowedspeed) {
         allowedspeed = pointAllowedSpeed;
         continue;
+
       }
-      float centripetalAcceleration = allowedspeed * allowedspeed * (MIN(currentTrajectory.getCurvature(currentlookahead),0.0001) + (1.0 / trackCurve));
-      // TODO figure out the max allowed acceleration
-      float maxBrakeAccel = sqrt(maxCarAcceleration * maxCarAcceleration - 
-          centripetalAcceleration * centripetalAcceleration);
-      float vprev = sqrt(allowedspeed * allowedspeed + 
-          2 * maxBrakeAccel * LOOKAHEAD_STEP);
-      allowedspeed = vprev;
+      //float centripetalAcceleration = (double)allowedspeed * (double)allowedspeed * ((double)MIN(currentTrajectory.getCurvature(currentlookahead),(double)0.000001) + (double)((double)1.0 / (double)trackCurve));
+      //cout << "acceleration " << centripetalAcceleration << std::endl;
+      //float maxBrakeAccel = sqrt(maxCarAcceleration * maxCarAcceleration - 
+      //    centripetalAcceleration * centripetalAcceleration);
+      if (allowedspeed > 100)
+        continue;
+      float dv = 1/allowedspeed * 
+                 sqrt((mu*G)*(mu*G) - 
+                     ((totalCurvature * (allowedspeed*allowedspeed))*
+                     (totalCurvature * (allowedspeed*allowedspeed)))) *
+                 LOOKAHEAD_STEP;
+      //cout << "dv " << dv << " one " << (mu*G)*(mu*G) << " two " << 
+      //  (totalCurvature - (allowedspeed*allowedspeed)) << endl;
+
+      //float vprev = sqrt(allowedspeed * allowedspeed + 
+      //    2 * maxBrakeAccel * LOOKAHEAD_STEP);
+      allowedspeed = allowedspeed + dv;
       
       currentlookahead -= LOOKAHEAD_STEP;
     }
-    allowedspeed = 20.0;
+    //allowedspeed = 20.0;
+    cout << endl;
+    cout << "Final Allowed speed " << allowedspeed << std::endl;
 
     //float allowedspeed = getAllowedSpeed(segptr);
     return MAX(0.0f, MIN(1.0f, (car->_speed_x + SPEED_MARGIN - allowedspeed)*CAR_BRAKE_CONSTANT));
@@ -409,11 +423,17 @@ double Driver::getCurve(float dist)
 {
   singleton& sing = singleton::getInstance();
   int i = car->pub.trkPos.seg->id;
-  while(i < sing.wrap.m_trackData.size() && dist < sing.wrap.m_trackData[i].first)
+  //cout << "distance " << dist << " startdist " << sing.wrap.m_trackData[i].first;
+  while(i < sing.wrap.m_trackData.size() && dist > sing.wrap.m_trackData[i].first)
   {
     i ++;
+    //cout << " i " << i;
   }
-  return sing.wrap.m_trackData[i-1].second;
+  //cout << " val " << sing.wrap.m_trackData[i-1].second;
+  //cout << endl;
+  double ret = sing.wrap.m_trackData[i-1].second;
+  if (ret == 0) ret = 5000;
+  return fabs(ret);
 }
 
 
