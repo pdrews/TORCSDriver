@@ -120,7 +120,7 @@ drive(int index, tCarElt* car, tSituation *s)
 	car->ctrl.gear = 1; // first gear
 	car->ctrl.accelCmd = 0.3; // 30% accelerator pedal
 	car->ctrl.brakeCmd = 0.0; // no brakes
-        sing.myDriver.drive(s, car, 0.0);//sing.wrap.getDistanceFromStart());
+        sing.myDriver.drive(s, car, sing.wrap.getDistanceFromStart());
 }
 
 /* End of the current race */
