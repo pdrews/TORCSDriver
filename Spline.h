@@ -18,6 +18,9 @@ class Spline{
 		double getCurvature(double evalPoint);
 	private:
 		tk::spline mySpline;
+		std::vector <double> unfilteredX;
+		std::vector <double> filteredX;
+		double trackLength;
 };
 
 #endif

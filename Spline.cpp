@@ -4,6 +4,7 @@
 #include <cstdlib>
 #include <vector>
 #include "spline_library.h"
+#include "singleton.h"
 using namespace std;
 
 Spline::Spline(std::vector<double> xPoints, std::vector<double> yPoints, double initCurvature){
@@ -17,7 +18,16 @@ Spline::Spline(std::vector<double> xPoints, std::vector<double> yPoints, double 
     printf("spline at %f is %f\n", x, s(x));
     */
     mySpline = tk::spline();
-    mySpline.set_points(xPoints, yPoints, initCurvature);
+    unfilteredX = xPoints;
+    filteredX = xPoints;
+    trackLength = singleton::getInstance().wrap.m_trackLength;
+
+    for (int i = 1; i < unfilteredX.size(); i++){
+      if (unfilteredX[i] < unfilteredX[0]){
+        filteredX[i] = trackLength + unfilteredX[i];
+      }
+    }
+    mySpline.set_points(filteredX, yPoints, initCurvature);
 
 }
 
@@ -26,10 +36,14 @@ Spline::Spline()
 
 //Returns the value of the spline and the curvature as a vector [value, curvature]
 double Spline::computeSplineValue(double evalPoint){
-  return 0;  
+  if (evalPoint < unfilteredX[0]){
+        evalPoint = trackLength + evalPoint;
+  }
   return mySpline(evalPoint)[0];
 }
 double Spline::getCurvature(double evalPoint){
-  return 0;  
+  if (evalPoint < unfilteredX[0]){
+        evalPoint = trackLength + evalPoint;
+  }  
   return mySpline(evalPoint)[1];
 }
