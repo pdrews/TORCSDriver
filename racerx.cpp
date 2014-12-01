@@ -78,7 +78,8 @@ static void
 initTrack(int index, tTrack* track, void *carHandle, void **carParmHandle, tSituation *s) 
 { 
     singleton& sing = singleton::getInstance();
-    sing.myDriver.setTrack(track);
+    //sing.myDriver.setTrack(track);
+    sing.myArbiter.setTrack(track);
     curTrack = track;
     *carParmHandle = NULL;
 } 
@@ -91,7 +92,8 @@ newrace(int index, tCarElt* car, tSituation *s)
 	wrapper& wrap = sing.wrap;
 	wrap.updateState(car, s);
 	wrap.getTrack();
-        sing.myDriver.newRace(car, s);
+        //sing.myDriver.newRace(car, s);
+	sing.myArbiter.newRace(car, s);
 }
  
 /* Drive during race. */
@@ -120,7 +122,8 @@ drive(int index, tCarElt* car, tSituation *s)
 	car->ctrl.gear = 1; // first gear
 	car->ctrl.accelCmd = 0.3; // 30% accelerator pedal
 	car->ctrl.brakeCmd = 0.0; // no brakes
-        sing.myDriver.drive(s, car, sing.wrap.getDistanceFromStart());
+	sing.myArbiter.drive();
+        //sing.myDriver.drive(s, car, 0.0);//sing.wrap.getDistanceFromStart());
 }
 
 /* End of the current race */

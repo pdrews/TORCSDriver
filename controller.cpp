@@ -300,7 +300,6 @@ float Driver::getAllowedSpeed(float curPosition, float trackCurve)
   r = 1.0 / ((1.0 / trackCurve) + (1.0 / r));
 
   r = MAX(1.0, r);
-  //cout << "Rad " << r << " " << sqrt((mu*G*r)/(1.0f - MIN(1.0f, r*CA*mu/mass))) << std::endl;
 
   return sqrt((mu*G*r));///(1.0f - MIN(1.0f, r*CA*mu/mass)));
 }

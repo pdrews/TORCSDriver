@@ -14,8 +14,8 @@ ZeroPolicy::ZeroPolicy(int actionDim, bool log) : m_actionDim(actionDim), m_log(
 vector<double> ZeroPolicy::search(vector<double> const& context) {
     if(m_log) {
         cout << "looking for policy, context : ";
-        for(double c : context)
-            cout << c;
+        for(int i = 0; i < context.size(); i++) 
+            cout << context[i];
         cout << " ... oh.. it's 0" << endl;
     }
     return vector<double>(m_actionDim, 0);

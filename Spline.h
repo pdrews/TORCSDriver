@@ -1,11 +1,14 @@
 /*Spline Class*/
-
+#ifndef SPLINE_H
+#define SPLINE_H
 #include <cstdio>
 #include <cstdlib>
 #include <string.h>
 #include <math.h>
 #include <vector>
 #include "spline_library.h"
+
+
 
 class Spline{
 	public:
@@ -15,4 +18,10 @@ class Spline{
 		double getCurvature(double evalPoint);
 	private:
 		tk::spline mySpline;
+		std::vector <double> unfilteredX;
+		std::vector <double> filteredX;
+		double trackLength;
 };
+
+#endif
+
