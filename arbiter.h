@@ -15,18 +15,21 @@ using namespace std;
 class Arbiter
 {
 public:
-	Arbiter(int nb_segments, int nb_intervals_per_segment):m_nb_segments(nb_segments),m_nb_intervals_per_segment(nb_intervals_per_segment){};
-	Arbiter(int nb_segments, int nb_intervals_per_segment, 
-		Driver* controller, ZeroPolicy* policy, wrapper* wrapper);
+	Arbiter(double segment_length, int nb_intervals_per_segment);
+	//Arbiter(double segment_length, int nb_intervals_per_segment, 
+	//	Driver* controller, ZeroPolicy* policy, wrapper* wrapper);
 	void drive();
 	void setController(Driver* controller);
 	void setWrapper(wrapper* w);
 	void setPolicy(ZeroPolicy* policy);
+	void setTrack(tTrack* track);
+	void newRace(tCarElt* car, tSituation *s);
 private:
 	Driver* m_controller;
 	ZeroPolicy* m_policy;
 	wrapper* m_wrapper;
 	float m_track_length;
+	Spline * m_prev_spline;
 	int m_nb_segments;
 	float m_segment_length;
 	float m_interval_length;

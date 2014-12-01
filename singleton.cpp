@@ -2,7 +2,7 @@
 
 singleton singleton::m_instance = singleton();
 
-singleton::singleton(){
+singleton::singleton() : myArbiter(300,3){
 }
 
 singleton::~singleton(){

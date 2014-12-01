@@ -300,7 +300,7 @@ float Driver::getAllowedSpeed(float curPosition, float trackCurve)
   r = 1.0 / ((1.0 / trackCurve) + (1.0 / r));
 
   r = MAX(1.0, r);
-  std::cout << "Rad " << r << " " << sqrt((mu*G*r)/(1.0f - MIN(1.0f, r*CA*mu/mass))) << std::endl;
+  //std::cout << "Rad " << r << " " << sqrt((mu*G*r)/(1.0f - MIN(1.0f, r*CA*mu/mass))) << std::endl;
 
   return sqrt((mu*G*r)/(1.0f - MIN(1.0f, r*CA*mu/mass)));
 }
@@ -373,13 +373,13 @@ float Driver::getBrake(float trajectoryPosition)
     float allowedspeed = 10000;
     float toStart = sing.wrap.getDistanceFromStart();
     while (currentlookahead > trajectoryPosition) {
-      std::cout << "lookahead " << currentlookahead;
+      //std::cout << "lookahead " << currentlookahead;
       float trackCurve = getCurve(toStart + currentlookahead - trajectoryPosition);
       if (trackCurve == 0.0) 
       {
         trackCurve = 5000;
       }
-      std::cout << "curve" << trackCurve << std::endl;
+      //std::cout << "curve" << trackCurve << std::endl;
       float pointAllowedSpeed = getAllowedSpeed(currentlookahead, trackCurve);
       if (pointAllowedSpeed > 100)
         pointAllowedSpeed = 100;
