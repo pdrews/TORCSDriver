@@ -3,7 +3,7 @@
 
 #include "wrap.h"
 #include "controller.h"
-#include "arbiter.h"
+#include "arbiter2.h"
 
 class singleton{
 private:
