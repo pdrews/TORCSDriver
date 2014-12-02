@@ -20,9 +20,16 @@ vector<double> ZeroPolicy::search(vector<double> const& context) {
             cout << context[i] << ", ";
         cout << " ... oh.. it's 0" << endl;
     }
+    //-3.3822, -2.29066, -2.23472, 0.713521, -0.787446, 2.23577
     vector<double> actions;
-    for(int i = 0; i < m_actionDim; ++i)
-        actions.push_back(pow(-1, i));
+    actions.push_back(-3.3822);
+    actions.push_back(-2.29066);
+    actions.push_back(-2.23472);
+    actions.push_back(-0.713521);
+    actions.push_back(-0.787446);
+    actions.push_back(-2.23577);
+    //for(int i = 0; i < m_actionDim; ++i)
+    //    actions.push_back(0);
     return actions;
 }
 
@@ -31,12 +38,15 @@ void ZeroPolicy::reportReward(double reward) {
         cout << " Got reward at distance from start " << singleton::getInstance().wrap.getDistanceFromStart() <<  ", probably didn't like my zeros :/ " << reward << endl;
 }
 
-ZMQPolicy::ZMQPolicy(int actionDim, string address) : m_actionDim(actionDim), m_context(1), m_channel(m_context, ZMQ_REP), m_waitingForReward(false) {
+ZMQPolicy::ZMQPolicy(int actionDim, string address) : m_actionDim(actionDim), m_context(1), m_channel(m_context, ZMQ_REP), m_waitingForReward(false), m_spline_count(0) {
     m_channel.bind(address.c_str());
 }
 
 vector<double> ZMQPolicy::search(vector<double> const& state) {
     assert(!m_waitingForReward); //This means you called this in the wrong order
+    m_spline_count++;
+    if(m_spline_count % 40 == 0)
+        cout << m_spline_count << endl;
 
     //wait until state is being asked for
     message_t empty_msg;
@@ -55,7 +65,8 @@ vector<double> ZMQPolicy::search(vector<double> const& state) {
     double* actions = static_cast<double*>(actions_msg.data());
 
     m_waitingForReward = true;
-    return vector<double>(actions, actions + actions_msg.size()/sizeof(double));
+    vector<double> result(actions, actions + actions_msg.size()/sizeof(double));
+    return result;
 }
 
 void ZMQPolicy::reportReward(double reward) {

@@ -13,7 +13,7 @@ Arbiter::Arbiter(double segment_length, int context_dim, int action_dim) :
     m_action_dim(action_dim),
     m_action_segment_length((segment_length * 2) / action_dim),
     m_context_segment_length((segment_length * 2) / context_dim),
-    m_policy(new ZeroPolicy(action_dim, true)) {
+    m_policy(new ZMQPolicy(action_dim)) {
 }
 
 void Arbiter::drive() {
@@ -43,26 +43,17 @@ void Arbiter::drive() {
 
 
         if(m_current_spline) //old policy existing -> need to give feedback about it
-            m_policy->reportReward(segment_time);
+            m_policy->reportReward(-(segment_time * segment_time));
 
         vector<double> spline_y = m_policy->search(context);
         vector<double> spline_x;
-        cout << "Spline x ";
         for(int i = 0; i < m_action_dim; ++i) {
             spline_x.push_back(current_position + i * m_action_segment_length);
-            cout << current_position + i * m_action_segment_length << " ";
         }
-        cout << endl;
         if(m_current_spline)
             m_current_spline.reset(new Spline(spline_x, spline_y, m_current_spline->getCurvature(current_position)));
         else
             m_current_spline.reset(new Spline(spline_x, spline_y, 0));
-        cout << "Spline y ";
-        for (int i = 0; i < spline_y.size(); i++)
-        {
-          cout << spline_y[i] << " ";
-        }
-        cout << endl;
         m_controller.setSpline(*m_current_spline);
     }
 

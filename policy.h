@@ -30,6 +30,7 @@ class ZMQPolicy : public Policy {
         std::vector<double> search(std::vector<double> const& state);
         void reportReward(double reward);
     private:
+        int m_spline_count;
         int const m_actionDim;
         zmq::context_t m_context;
         zmq::socket_t m_channel;
