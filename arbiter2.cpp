@@ -3,7 +3,7 @@
 #include <iostream>
 
 using namespace std;
-using namespace boost;
+using namespace std::tr1;
 
 Arbiter::Arbiter(double segment_length, int context_dim, int action_dim) : 
     m_segment_start_distance(0),
@@ -26,7 +26,7 @@ void Arbiter::drive() {
     if(next_segment > m_segment_length) {
         //new segment, gather context information
         m_segment_start_distance = current_position;
-        double segment_time = wrapper.getCurrentTime() - segment_time;
+        double segment_time = wrapper.getCurrentTime() - m_segment_start_time;
         m_segment_start_time = wrapper.getCurrentTime();
         vector<double> curvatures;
         for(int i = 0; i < m_context_dim; ++i) {

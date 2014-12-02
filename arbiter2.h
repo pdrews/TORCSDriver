@@ -1,6 +1,6 @@
 #pragma once
 
-#include <boost/scoped_ptr.hpp>
+#include <tr1/memory>
 #include "policy.h"
 #include "controller.h"
 #include "Spline.h"
@@ -23,7 +23,7 @@ private:
     double m_context_segment_length;
 
     Driver m_controller;
-    boost::scoped_ptr<Spline> m_current_spline;
-    boost::scoped_ptr<Policy> m_policy;
+    std::tr1::shared_ptr<Spline> m_current_spline;
+    std::tr1::shared_ptr<Policy> m_policy;
 };
 
