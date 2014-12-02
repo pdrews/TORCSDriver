@@ -27,6 +27,7 @@ void Arbiter::drive()
 	//Get position from start of track
 	float length_from_start_mod = m_wrapper->getDistanceFromStart();
 	tCarElt* car_state = m_wrapper->m_car;
+    cout << "raced: " << car_state->dist_raced_ << "|" << m_wrapper->getDistanceFromStart()<< endl;
 	tSituation* situation = m_wrapper->m_situation;
 	//Get the segment id which we are on from start of race
 	int segment_position_idx = length_from_start/m_segment_length;

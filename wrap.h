@@ -34,6 +34,7 @@ public:
 	void getTrack();
 	float getDistanceFromStart(); 
 	float getCurvature(float seg);
+    float positionFromCenterline();
 
 	void print();
 	void printStuff(char* name, tdble stuff);
