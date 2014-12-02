@@ -1,6 +1,7 @@
 #include "policy.h"
 #include <cassert>
 #include <cstdlib>
+#include <cmath>
 
 #include <iostream>
 #include "singleton.h"
@@ -19,7 +20,10 @@ vector<double> ZeroPolicy::search(vector<double> const& context) {
             cout << context[i] << ", ";
         cout << " ... oh.. it's 0" << endl;
     }
-    return vector<double>(m_actionDim, 0);
+    vector<double> actions;
+    for(int i = 0; i < m_actionDim; ++i)
+        actions.push_back(pow(-1, i));
+    return actions;
 }
 
 void ZeroPolicy::reportReward(double reward) {
