@@ -32,9 +32,20 @@ void Arbiter::drive() {
         for(int i = 0; i < m_context_dim; ++i) {
             curvatures.push_back(wrapper.getCurvature(fmod(current_position + i * m_context_segment_length, wrapper.m_trackLength)));
         }
-        //TODO: fix context
-        m_policy->reportReward(segment_time); //TODO: fix initial step
-        vector<double> spline_y = m_policy->search(curvatures);
+
+        vector<double> context; //state of the high level policy: position of driver, 
+        context.push_back(wrapper.positionFromCenterline());
+        for(int i = 0; i < curvatures.size(); ++i)
+            if(curvatures[i] == 0)
+                context.push_back(0);
+            else
+                context.push_back(1/curvatures[i]);
+
+
+        if(m_current_spline) //old policy existing -> need to give feedback about it
+            m_policy->reportReward(segment_time);
+
+        vector<double> spline_y = m_policy->search(context);
         vector<double> spline_x;
         for(int i = 0; i < m_action_dim; ++i) {
             spline_x.push_back(current_position + i * m_action_segment_length);

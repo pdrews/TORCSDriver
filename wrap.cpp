@@ -121,5 +121,10 @@ void wrapper::printStuff(char* name, tdble stuff){
 float wrapper::getCurrentTime() {
     return m_situation->currentTime;
 }
-
+float wrapper::positionFromCenterline() {
+    if(m_car)
+        return m_car->_trkPos.toMiddle/m_car->_trkPos.seg->width;
+    else
+        return 0;
+}
 
