@@ -56,7 +56,7 @@ const float Driver::USE_LEARNED_OFFSET_RANGE = 0.2f;    // [m] if offset < this 
 const float Driver::TEAM_REAR_DIST = 50.0f;         //
 const int Driver::TEAM_DAMAGE_CHANGE_LEAD = 700;      // When to change position in the team?
 const float Driver::LOOKAHEAD_STEP = 1.0f;
-const float Driver::MAX_LOOKAHEAD_DIST = 299.0f;
+const float Driver::MAX_LOOKAHEAD_DIST = 290.0f;
 const float Driver::SPEED_MARGIN = 1.0f;
 const float Driver::CAR_BRAKE_CONSTANT = 1.0f;
 
@@ -281,7 +281,7 @@ float Driver::getAllowedSpeed(float curPosition, float trackCurve)
 {
   float mu = car->_trkPos.seg->surface->kFriction*TIREMU*MU_FACTOR;
   //float mu = segment->surface->kFriction*TIREMU*MU_FACTOR;
-  float r = 1.0/currentTrajectory.getCurvature(curPosition);
+  float r = 1.0/fabs(currentTrajectory.getCurvature(curPosition));
   r = MIN(5000.0f,r);
   //float dr = learn->getRadius(segment);
   //if (dr < 0.0f) {
@@ -321,9 +321,9 @@ float Driver::getAccel(float trackPos)
 {
   if (car->_gear > 0) {
     float trackCurve = getCurve(trackPos);
-    cout << "track pos " << trackPos << " track curve " << getCurve(trackPos);
+    //cout << "track pos " << trackPos << " track curve " << getCurve(trackPos);
     float allowedspeed = getAllowedSpeed(trackPos,trackCurve);
-    cout << " speed " << allowedspeed << endl;
+    //cout << " speed " << allowedspeed << endl;
     if (allowedspeed > (car->_speed_x + FULL_ACCEL_MARGIN)) {
       return 1.0;
     } else {
@@ -373,12 +373,14 @@ float Driver::getBrake(float trajectoryPosition)
     // Now iterate backward in our spline to get speeds
     float allowedspeed = 10000;
     float toStart = sing.wrap.getDistanceFromStart();
-    cout << "curves";
+    //cout << "curves";
     cout.precision(5);
+    cout << "Curvatures ";
     while (currentlookahead > trajectoryPosition) {
       //cout << "lookahead " << currentlookahead;
       double trackCurve = getCurve(toStart + currentlookahead - trajectoryPosition);
-      double totalCurvature = (double)MIN(currentTrajectory.getCurvature(currentlookahead), 0.0000001) + 1.0/trackCurve;
+      cout << currentTrajectory.getCurvature(currentlookahead) << " ";
+      double totalCurvature = (double)MIN(fabs(currentTrajectory.getCurvature(currentlookahead)), 0.0000001) + 1.0/trackCurve;
       //cout << 1.0/totalCurvature << " ";
       float pointAllowedSpeed = getAllowedSpeed(currentlookahead, trackCurve);
       if (pointAllowedSpeed > 100)
@@ -409,9 +411,10 @@ float Driver::getBrake(float trajectoryPosition)
       
       currentlookahead -= LOOKAHEAD_STEP;
     }
-    //allowedspeed = 20.0;
     cout << endl;
-    cout << "Final Allowed speed " << allowedspeed << std::endl;
+    //allowedspeed = 20.0;
+    //cout << endl;
+    //cout << "Final Allowed speed " << allowedspeed << std::endl;
 
     //float allowedspeed = getAllowedSpeed(segptr);
     return MAX(0.0f, MIN(1.0f, (car->_speed_x + SPEED_MARGIN - allowedspeed)*CAR_BRAKE_CONSTANT));
