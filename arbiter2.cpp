@@ -20,10 +20,10 @@ void Arbiter::drive() {
     wrapper& wrapper = singleton::getInstance().wrap;
     double current_position = wrapper.getDistanceFromStart();
 
-    double next_segment = current_position - m_segment_start_distance; //position of next segment
+    double position_on_spline = current_position - m_segment_start_distance; //position of next segment
     if(current_position < m_segment_start_distance) //wraparound
-        next_segment += wrapper.m_trackLength;
-    if(next_segment > m_segment_length) {
+        position_on_spline += wrapper.m_trackLength;
+    if(position_on_spline > m_segment_length) {
         //new segment, gather context information
         m_segment_start_distance = current_position;
         double segment_time = wrapper.getCurrentTime() - m_segment_start_time;
@@ -36,21 +36,29 @@ void Arbiter::drive() {
         m_policy->reportReward(segment_time); //TODO: fix initial step
         vector<double> spline_y = m_policy->search(curvatures);
         vector<double> spline_x;
+        cout << "Spline x ";
         for(int i = 0; i < m_action_dim; ++i) {
             spline_x.push_back(current_position + i * m_action_segment_length);
+            cout << current_position + i * m_action_segment_length << " ";
         }
+        cout << endl;
         if(m_current_spline)
             m_current_spline.reset(new Spline(spline_x, spline_y, m_current_spline->getCurvature(current_position)));
         else
             m_current_spline.reset(new Spline(spline_x, spline_y, 0));
+        cout << "Spline y ";
+        for (int i = 0; i < spline_y.size(); i++)
+        {
+          cout << spline_y[i] << " ";
+        }
+        cout << endl;
         m_controller.setSpline(*m_current_spline);
     }
 
     //call controller
     tCarElt* car_state = wrapper.m_car;
     tSituation* situation = wrapper.m_situation;
-    double position_on_spline = current_position - m_segment_start_distance;
-    m_controller.drive(situation, car_state, position_on_spline);
+    m_controller.drive(situation, car_state, current_position);
 }
 
 void Arbiter::setTrack(tTrack* track)

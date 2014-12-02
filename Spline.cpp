@@ -36,6 +36,7 @@ Spline::Spline()
 
 //Returns the value of the spline and the curvature as a vector [value, curvature]
 double Spline::computeSplineValue(double evalPoint){
+  trackLength = singleton::getInstance().wrap.m_trackLength;
   if (evalPoint < unfilteredX[0]){
         evalPoint = trackLength + evalPoint;
   }

@@ -374,12 +374,12 @@ float Driver::getBrake(float trajectoryPosition)
     float allowedspeed = 10000;
     float toStart = sing.wrap.getDistanceFromStart();
     //cout << "curves";
-    cout.precision(5);
-    cout << "Curvatures ";
+    //cout.precision(5);
+    //cout << "Curvatures ";
     while (currentlookahead > trajectoryPosition) {
       //cout << "lookahead " << currentlookahead;
       double trackCurve = getCurve(toStart + currentlookahead - trajectoryPosition);
-      cout << currentTrajectory.getCurvature(currentlookahead) << " ";
+      //cout << currentTrajectory.getCurvature(currentlookahead) << " ";
       double totalCurvature = (double)MIN(fabs(currentTrajectory.getCurvature(currentlookahead)), 0.0000001) + 1.0/trackCurve;
       //cout << 1.0/totalCurvature << " ";
       float pointAllowedSpeed = getAllowedSpeed(currentlookahead, trackCurve);
@@ -411,7 +411,7 @@ float Driver::getBrake(float trajectoryPosition)
       
       currentlookahead -= LOOKAHEAD_STEP;
     }
-    cout << endl;
+    //cout << endl;
     //allowedspeed = 20.0;
     //cout << endl;
     //cout << "Final Allowed speed " << allowedspeed << std::endl;
@@ -527,6 +527,7 @@ vec2f Driver::getTargetPoint(float carPos)
   }
 
   oldlookahead = lookahead;
+  //cout << "lookahead " << lookahead << " carPos " << carPos << endl;
 
   float offset = currentTrajectory.computeSplineValue(carPos + lookahead);
 
